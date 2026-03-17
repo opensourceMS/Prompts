@@ -1,0 +1,326 @@
+{
+  "project": {
+    "id": "generic-project-performance-and-component-review-001",
+    "name": "Generic Software Project",
+    "summary": "Analyser globalement un projet logiciel en se concentrant sur la performance, les appels internes et externes, le cache, les timeouts, la concurrence, les workers, le streaming éventuel, la lecture de la documentation des composants utilisés, les tests d’intégration, les tests de performance et la production d’un rapport final exploitable.",
+    "domain": "software-engineering",
+    "target_mode": "component-doc-driven-performance-analysis",
+    "priority": "high",
+    "input_mode": "repository-and-component-documentation"
+  },
+  "objective": {
+    "primary_goal": "Lire le code du projet et la documentation des composants utilisés afin d’identifier les optimisations possibles, en particulier sur la latence, le cache, les appels internes et externes, le streaming, la concurrence, les traitements asynchrones, la base de données, les files d’attente et les flux temps réel.",
+    "secondary_goals": [
+      "Déterminer si certains flux devraient utiliser du streaming",
+      "Identifier les points où des appels sont inutilement séquentiels",
+      "Identifier les composants mal exploités ou sous-optimisés",
+      "Définir les tests d’intégration nécessaires",
+      "Définir les tests de performance nécessaires",
+      "Produire un rapport final structuré avec recommandations priorisées"
+    ]
+  },
+  "components_to_review_policy": {
+    "discovery_mode": "auto-detect-from-repository",
+    "instructions": [
+      "Identifier automatiquement les frameworks, bibliothèques, services, bases de données, brokers, caches, moteurs de recherche, systèmes de queue, composants frontend, composants backend et intégrations externes présents dans le projet",
+      "Lire ou consulter la documentation officielle, locale ou embarquée des composants détectés lorsque disponible",
+      "Comparer l’usage réel du projet avec les bonnes pratiques documentées",
+      "Ne pas supposer à l’avance une stack particulière"
+    ]
+  },
+  "component_review_template": {
+    "review_points_catalog": {
+      "web_framework": [
+        "usage sync/async",
+        "gestion des timeouts",
+        "overhead des routes",
+        "middlewares",
+        "streaming responses",
+        "gestion des erreurs",
+        "support websocket ou SSE"
+      ],
+      "frontend_framework": [
+        "refresh inutile",
+        "polling excessif",
+        "rendu temps réel",
+        "re-render inutiles",
+        "lazy loading",
+        "memoization",
+        "taille des payloads",
+        "optimisation de la navigation"
+      ],
+      "worker_framework": [
+        "concurrency",
+        "prefetch",
+        "retries",
+        "granularité des tâches",
+        "backlog",
+        "tâches longues",
+        "priorisation",
+        "observabilité runtime"
+      ],
+      "message_broker": [
+        "queue sizing",
+        "ack strategy",
+        "retry routing",
+        "dead letter patterns",
+        "throughput limits",
+        "ordering constraints",
+        "consumer lag"
+      ],
+      "cache_system": [
+        "cache patterns",
+        "TTL",
+        "cache invalidation",
+        "hot keys",
+        "duplicate fetches",
+        "coordination or locking usage",
+        "cache stampede risk"
+      ],
+      "database": [
+        "slow queries",
+        "indexes",
+        "N+1 patterns",
+        "connection pool",
+        "transaction duration",
+        "hot paths",
+        "pagination",
+        "read/write contention"
+      ],
+      "search_or_vector_engine": [
+        "query cost",
+        "latency",
+        "index usage",
+        "filters",
+        "payload size",
+        "fallback strategy"
+      ],
+      "external_api_or_service": [
+        "call latency",
+        "timeout strategy",
+        "retry policy",
+        "call frequency",
+        "rate limiting",
+        "batching opportunities",
+        "cacheability",
+        "streaming support"
+      ]
+    }
+  },
+  "mandatory_analysis_axes": [
+    {
+      "id": "component-doc-review",
+      "title": "Lecture de la documentation des composants",
+      "checks": [
+        "Lire la documentation officielle ou locale des composants présents dans le projet",
+        "Comparer les usages actuels du projet avec les bonnes pratiques recommandées",
+        "Identifier les fonctionnalités non utilisées qui pourraient améliorer la performance, la robustesse ou la maintenabilité",
+        "Identifier les anti-patterns ou mauvais usages"
+      ]
+    },
+    {
+      "id": "architecture-and-flow-review",
+      "title": "Analyse des flux et de l’architecture",
+      "checks": [
+        "Identifier les principaux flux techniques et fonctionnels du système",
+        "Identifier les dépendances critiques entre composants",
+        "Repérer les séquences inutilement synchrones",
+        "Identifier les points de contention, de blocage ou de duplication"
+      ]
+    },
+    {
+      "id": "streaming-analysis",
+      "title": "Analyse du besoin de streaming",
+      "checks": [
+        "Déterminer si certaines réponses ou certains flux devraient être streamés",
+        "Déterminer si certains échanges temps réel devraient utiliser streaming, SSE, WebSocket ou autre mécanisme push",
+        "Identifier les pages, endpoints ou traitements où le streaming améliorerait l’UX ou réduirait la latence perçue",
+        "Identifier les cas où le streaming n’est pas pertinent"
+      ]
+    },
+    {
+      "id": "internal-and-external-call-analysis",
+      "title": "Analyse des appels internes et externes",
+      "checks": [
+        "Lister les appels entre composants et vers services externes",
+        "Mesurer ou estimer leur coût en latence",
+        "Identifier les appels redondants",
+        "Identifier les appels qui devraient être parallélisés, batchés ou mis en cache",
+        "Vérifier timeouts, retries, backoff et fallbacks"
+      ]
+    },
+    {
+      "id": "cache-analysis",
+      "title": "Analyse du cache",
+      "checks": [
+        "Identifier les données fréquemment recalculées ou relues",
+        "Déterminer ce qui devrait être mis en cache",
+        "Détecter les stratégies de cache absentes, faibles ou mal invalidées",
+        "Évaluer les risques de cohérence, d’invalidation ou de surcache"
+      ]
+    },
+    {
+      "id": "worker-and-queue-analysis",
+      "title": "Analyse des workers et files d’attente",
+      "checks": [
+        "Identifier les tâches trop longues",
+        "Identifier les tâches qui bloquent inutilement",
+        "Détecter les risques de backlog",
+        "Évaluer la granularité des tâches",
+        "Identifier les gains possibles sur la concurrence, le scheduling et le découpage"
+      ]
+    },
+    {
+      "id": "database-analysis",
+      "title": "Analyse des bases de données et stockages",
+      "checks": [
+        "Identifier les requêtes coûteuses ou répétitives",
+        "Détecter les N+1",
+        "Vérifier indexation, pagination, cardinalité et accès fréquents",
+        "Déterminer les lectures qui peuvent être pré-calculées, agrégées ou mises en cache"
+      ]
+    },
+    {
+      "id": "frontend-and-realtime-analysis",
+      "title": "Analyse frontend et temps réel",
+      "checks": [
+        "Identifier les refresh inutiles et les re-render excessifs",
+        "Détecter les appels trop fréquents ou les payloads trop lourds",
+        "Déterminer si le polling doit être remplacé par un mécanisme push",
+        "Analyser la perception utilisateur de la latence"
+      ]
+    },
+    {
+      "id": "integration-test-review",
+      "title": "Tests d’intégration",
+      "checks": [
+        "Déterminer les flux critiques à couvrir en intégration",
+        "Vérifier si des tests d’intégration existent déjà",
+        "Identifier les trous de couverture",
+        "Définir un plan de tests d’intégration réaliste",
+        "Proposer des scénarios d’intégration par composant et bout en bout"
+      ]
+    },
+    {
+      "id": "performance-test-review",
+      "title": "Tests de performance",
+      "checks": [
+        "Déterminer les endpoints, tâches, workflows ou composants à benchmarquer",
+        "Définir les métriques à mesurer",
+        "Proposer des scénarios de charge réalistes",
+        "Identifier les outils de test de performance adaptés",
+        "Proposer une baseline et des objectifs"
+      ]
+    }
+  ],
+  "required_streaming_decisions": {
+    "must_answer": [
+      "Faut-il utiliser du streaming sur certains flux ?",
+      "Quels endpoints ou traitements doivent rester synchrones ?",
+      "Quels traitements doivent rester asynchrones via workers ou queues ?",
+      "Quels flux doivent passer en batch plutôt qu’en streaming ?",
+      "Quel mécanisme convient le mieux selon le cas : réponse classique, streaming HTTP, SSE, WebSocket, queue asynchrone ou batch ?"
+    ]
+  },
+  "required_test_plan": {
+    "integration_tests": [
+      "workflow principal de bout en bout",
+      "persistance et lecture en base",
+      "lecture et écriture du cache",
+      "communication entre API et workers",
+      "exécution de traitements asynchrones",
+      "intégration avec services externes mockés",
+      "fallback sur indisponibilité d’un service dépendant",
+      "propagation correcte des erreurs",
+      "validation des flux critiques du frontend vers le backend"
+    ],
+    "performance_tests": [
+      "latence des endpoints critiques",
+      "temps total d’un workflow métier clé",
+      "charge concurrente sur les workers",
+      "impact du cache hit vs cache miss",
+      "performance des requêtes base de données sur chemins chauds",
+      "charge sur broker, queue ou mécanisme asynchrone",
+      "charge frontend temps réel ou polling",
+      "impact des appels externes sous charge"
+    ]
+  },
+  "expected_report": {
+    "format": "structured-markdown",
+    "sections": [
+      "Résumé exécutif",
+      "Composants détectés et analysés",
+      "Écarts entre usage actuel et bonnes pratiques documentées",
+      "Opportunités d’optimisation",
+      "Analyse du streaming",
+      "Analyse du cache",
+      "Analyse des appels internes et externes",
+      "Analyse base de données / queues / workers",
+      "Plan de tests d’intégration",
+      "Plan de tests de performance",
+      "Top bottlenecks",
+      "Quick wins",
+      "Recommandations prioritaires",
+      "Verdict final"
+    ]
+  },
+  "required_tables": [
+    {
+      "name": "component_review",
+      "columns": [
+        "component",
+        "component_type",
+        "current_usage",
+        "best_practice_from_docs",
+        "gap",
+        "optimization_opportunity",
+        "priority"
+      ]
+    },
+    {
+      "name": "streaming_decisions",
+      "columns": [
+        "flow",
+        "current_mode",
+        "recommended_mode",
+        "reason",
+        "expected_benefit"
+      ]
+    },
+    {
+      "name": "integration_test_plan",
+      "columns": [
+        "test_name",
+        "scope",
+        "dependencies",
+        "expected_result",
+        "priority"
+      ]
+    },
+    {
+      "name": "performance_test_plan",
+      "columns": [
+        "scenario",
+        "target_component",
+        "metric",
+        "load_profile",
+        "success_criteria",
+        "priority"
+      ]
+    }
+  ],
+  "execution_rules": {
+    "must_detect_components_automatically": true,
+    "must_read_component_docs": true,
+    "must_compare_code_with_documentation": true,
+    "must_identify_streaming_opportunities": true,
+    "must_identify_cases_where_streaming_is_not_needed": true,
+    "must_propose_integration_tests": true,
+    "must_propose_performance_tests": true,
+    "must_generate_structured_report": true,
+    "must_prioritize_optimizations": true,
+    "must_be_honest_if_data_is_missing": true,
+    "must_distinguish_measured_findings_from_hypotheses": true
+  },
+  "final_prompt": "Analyse ce projet en lisant le code et la documentation des composants utilisés. Détecte automatiquement la stack technique et compare l’implémentation actuelle avec les bonnes pratiques recommandées par chaque composant. Identifie les opportunités d’optimisation sur la performance, le cache, la latence, les appels internes et externes, les timeouts, les workers, les files d’attente, la base de données, le frontend et les flux temps réel. Détermine explicitement s’il faut introduire du streaming, où il faut le faire, sous quelle forme, et dans quels cas ce n’est pas utile. Définis ensuite un plan de tests d’intégration et un plan de tests de performance couvrant les flux critiques du système. Termine par un rapport structuré avec écarts par rapport aux bonnes pratiques, top bottlenecks, quick wins, recommandations priorisées et verdict final."
+}
